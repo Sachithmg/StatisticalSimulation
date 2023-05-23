@@ -24,20 +24,62 @@ data <- c(25.3,29.3,37.7,32.8,24.6,26.5,21.2,28.4,24,28.7,37.4,30.7,36.7,28.2,26
           23.4,29.5,21.9,19.2,28.6,23.4,23.2,18.1,31.4,22.9,25.6)
 ```
 
-1. Draw a histogram of bodyfat data
+1. Draw a histogram of body fat data
 ```{r}
-
+hist(data)
 ```
-
+Note: 
+Based on the histogram it is clear that data is not symmetrically distributed.
+Therefore, it's assumed that it is not a normal distribution.
 
 2. Check the normality of observations
+
+Methods of normality test. (https://www.statology.org/test-for-normality-in-r/)
+  1. (Visual Method) Create a histogram.
+      If the histogram is roughly “bell-shaped”, then the data is assumed to 
+      be normally distributed.
+
+  2. (Visual Method) Create a Q-Q plot.
+      If the points in the plot roughly fall along a straight diagonal line, 
+      then the data is assumed to be normally distributed.
+
+  3. (Formal Statistical Test) Perform a Shapiro-Wilk Test.
+      If the p-value of the test is greater than α = .05, then the data is 
+      assumed to be normally distributed.
+
+  4. (Formal Statistical Test) Perform a Kolmogorov-Smirnov Test.
+      If the p-value of the test is greater than α = .05, then the data is 
+      assumed to be normally distributed.
  
 ```{r}
+# Here Q-Q plot is used for normality test
+qqnorm(data)
+qqline(data)
 
 ```
+
+Note: 
+Data is not following this diagonal line therefore, it is not a normal distribution. 
 
 3. Obtain the sampling distribution of average body fat percentage
 ```{r}
+# sample mean 
+x_bar <- mean(data)
+# Variance
+x_S_2 <- var(data)
+
+
+n <- length(data)
+
+
+
+# What is the sampling distribution of the x bar
+# Based on the CLT, N(x_bar, x_S_2/n)
+print(paste("sample size:" , n), quote = FALSE )
+print(paste("sample mean:",x_bar), quote = FALSE )
+print(paste("sample variance:",x_S_2 / n ), quote = FALSE )
+
+
 
 ```
 
@@ -45,15 +87,46 @@ data <- c(25.3,29.3,37.7,32.8,24.6,26.5,21.2,28.4,24,28.7,37.4,30.7,36.7,28.2,26
 4. Obtain a estimate for average body fat of an individual using Bootstrap sampling 
 
 ```{r}
- 
+set.seed(12345) 
+#Bootstrap Samples 
+N <- 10000
+#vector to hold Bootstrap means 
+bt_mean <- rep(NA, N)
+
+#Loop to create N number of samples 
+for (i in 1:N)
+{
+  #create sample 
+  bt_sample <- sample(data, n, replace = TRUE)
+  bt_mean[i] <- mean(bt_sample)  
+}
+
+bootstarp_mean <- mean(bt_mean)
+bootstrap_S_2 <- var(bt_mean)
+
+bootstarp_mean
+bootstrap_S_2
 ```
 
 
 5. Draw a histogram of bootstrap estimates and sampling distribution of average body fat of an individual
 ```{r}
-
+ggplot(data=data.frame(bt_mean = bt_mean), aes(x=bt_mean))+
+  geom_histogram(aes(y = ..density..),
+                      bandwidth = 0.5,
+                      colour = "black",
+                      fill = "white") +
+  stat_function(fun = dnorm, args = list(mean = x_bar, sd = sqrt(x_S_2/n)), colour = "blue")+
+  stat_function(fun = dnorm, args = list(mean = bootstarp_mean, sd = sqrt(bootstrap_S_2)), colour = "red")+
+  theme_classic()
 
 ```
+5.2 Estimate 95% confidence interval for mean 
+```{r}
+quantile(bt_mean, c(0.025, 0.975))
+```
+
+
 6. Estimate the median body fat percentage of an individual
 
 ```{r}
