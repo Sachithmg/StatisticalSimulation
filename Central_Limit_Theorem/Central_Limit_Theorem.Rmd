@@ -1,0 +1,43 @@
+---
+title: "Central_Limit_Theorem"
+author: "Sachith M Gunawardane"
+date: "2023-05-25"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(ggplot2)
+```
+
+
+# Univariate Data - Non-normal Population 
+
+```{r}
+#Basic histogram for Non-normal population 
+univ.data.2 <- rbeta(10000, shape1 = 15, shape2 = 2)
+ggplot(as.data.frame(univ.data.2), aes(x=univ.data.2)) + geom_histogram(binwidth = 0.01) + theme_bw()
+```
+
+
+```{r}
+# Sample from skewed population distribution 
+sample.size <- 30
+num.samples <- 1000
+sample.mans <- replicate(num.samples, mean(sample(x = univ.data.2, size = sample.size)))
+p2 <- ggplot(data = NULL, aes(x=sample.mans)) + geom_histogram(binwidth = 0.002) + theme_bw()
+
+p2
+rand.s.1 <- sample(univ.data.2, sample.size)
+s.1.mean <- mean(rand.s.1)
+p2 + geom_point(data = as.data.frame(s.1.mean), aes(x=s.1.mean, y=0, col='red'))
+
+```
+Idea of the hypothesis testing is to find the position of sample mean in the 
+sample distribution. And if it falls within 95% of data from the distribution sample 
+mean then we can't reject if not reject the H0
+

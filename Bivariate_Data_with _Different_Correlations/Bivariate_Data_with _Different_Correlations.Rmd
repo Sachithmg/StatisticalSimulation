@@ -1,0 +1,63 @@
+---
+title: "Bivariate_Data_with _Different_Correlations"
+author: "Sachith M Gunawardane"
+date: "2023-05-25"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(MASS)
+library(gridExtra)
+library(ggplot2)
+```
+
+```{r}
+sig <- matrix(c(144,0,0,4),2,2)
+bv.data.1 <- mvrnorm(n=1000, mu=c(160,70), Sigma = sig)
+colnames(bv.data.1) <- c('X1','X2')
+p1 <- ggplot(as.data.frame(bv.data.1),aes(x=X1, y=X2)) + geom_point()
+p1.h.x1 <- ggplot(as.data.frame(bv.data.1), aes(x=X1)) + geom_histogram(binwidth = 1) + xlim(120,200)
+p1.h.x2 <- ggplot(as.data.frame(bv.data.1), aes(x=X2)) + geom_histogram(binwidth = 0.5) + xlim(64,76)
+grid.arrange(p1,p1.h.x1, p1.h.x2, nrow(1))
+
+```
+
+
+```{r}
+sig <- matrix(c(144,1,1,4),2,2)
+bv.data.2 <- mvrnorm(n=1000, mu=c(160,70), Sigma = sig)
+colnames(bv.data.2) <- c('X1','X2')
+p1 <- ggplot(as.data.frame(bv.data.2),aes(x=X1, y=X2)) + geom_point()
+p1.h.x1 <- ggplot(as.data.frame(bv.data.2), aes(x=X1)) + geom_histogram(binwidth = 1) + xlim(120,200)
+p1.h.x2 <- ggplot(as.data.frame(bv.data.2), aes(x=X2)) + geom_histogram(binwidth = 0.5) + xlim(64,76)
+grid.arrange(p1,p1.h.x1, p1.h.x2, nrow(1))
+```
+
+
+
+```{r}
+sig <- matrix(c(144,12,12,4),2,2)
+bv.data.3 <- mvrnorm(n=1000, mu=c(160,70), Sigma = sig)
+colnames(bv.data.3) <- c('X1','X2')
+p1 <- ggplot(as.data.frame(bv.data.3),aes(x=X1, y=X2)) + geom_point()
+p1.h.x1 <- ggplot(as.data.frame(bv.data.3), aes(x=X1)) + geom_histogram(binwidth = 1) + xlim(120,200)
+p1.h.x2 <- ggplot(as.data.frame(bv.data.3), aes(x=X2)) + geom_histogram(binwidth = 0.5) + xlim(64,76)
+grid.arrange(p1,p1.h.x1, p1.h.x2, nrow(1))
+```
+
+
+```{r}
+sig <- matrix(c(144,20,20,4),2,2)
+bv.data.4 <- mvrnorm(n=1000, mu=c(160,70), Sigma = sig)
+colnames(bv.data.4) <- c('X1','X2')
+p1 <- ggplot(as.data.frame(bv.data.4),aes(x=X1, y=X2)) + geom_point()
+p1.h.x1 <- ggplot(as.data.frame(bv.data.4), aes(x=X1)) + geom_histogram(binwidth = 1) + xlim(120,200)
+p1.h.x2 <- ggplot(as.data.frame(bv.data.4), aes(x=X2)) + geom_histogram(binwidth = 0.5) + xlim(64,76)
+grid.arrange(p1,p1.h.x1, p1.h.x2, nrow(1))
+```
+
