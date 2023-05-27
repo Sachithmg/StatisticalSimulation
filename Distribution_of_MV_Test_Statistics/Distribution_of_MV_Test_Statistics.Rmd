@@ -1,0 +1,58 @@
+---
+title: "Distribution_of_MV_Test_Statistics"
+author: "Sachith M Gunawardane"
+date: "2023-05-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(mvtnorm)
+library(MASS)
+```
+
+
+```{r}
+#when sigma is known 
+
+mu <- c(0,0) # true population mean (mu_0)
+V <- matrix(c(16,7,7,4), nrow = 2, ncol = 2, byrow = TRUE) # true cov matrix
+
+
+## simulating the distribution 
+
+# Sample size
+n <- 30 
+
+# number of samples 
+sample.reps <- 1000
+
+#test statistics array 
+ts.arr <- c()
+
+for(i in 1:sample.reps){
+  # generate a sample size n 
+  sample.data <- as.data.frame(rmvnorm(n, mean=mu, sigma = V))
+  #calculate the sample mean 
+  sample.x.bar <- colMeans(sample.data)
+  
+  #calculate the MD
+  test.stat <- n*t(sample.x.bar-mu)%*%solve(V)%*%(sample.x.bar-mu)
+  
+  ts.arr <-  c(ts.arr, test.stat)
+}
+
+hist(ts.arr, breaks = 50) #histogram of the test statistics 
+
+x.arr <- seq(0,20,length=1000)
+y.fit.arr <- dchisq(x.arr, 2)
+
+{hist(ts.arr, breaks=50, probability = T)
+  lines(x.arr, y.fit.arr, col="blue",lwd=2)}
+
+```
+
