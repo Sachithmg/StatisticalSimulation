@@ -1,0 +1,83 @@
+---
+title: "MVR_Linear_Func_IS_UniNormal"
+author: "Sachith M Gunawardane"
+date: "2023-05-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(mvtnorm)
+library(MASS)
+```
+
+```{r}
+#population 
+# population cov matrix
+v <- matrix(c(16,7,7,4), nrow = 2, ncol = 2 , byrow = TRUE)
+# True mean
+mu <- c(0,0)
+n <- 1000
+
+d1 <- as.data.frame(rmvnorm(n, mean = mu, sigma = v))
+ggplot(d1, aes(V1, V2)) +geom_point(alpha = 0.1) + theme_bw()
+
+d2 <- as.data.frame(rmvnorm(n, mean = mu, sigma = v))
+ggplot(d1, aes(V1, V2)) +geom_point(alpha = 0.1) + theme_bw()
+
+
+```
+## 3D Plot
+```{r}
+x <-  seq(-20, 20, length =100)
+y <- seq(-8,8, length = 100)
+
+calc.z <- function(x,y,mu,sigma)
+{
+  z <- matrix(ncol = length(y), nrow = length(x))
+  for (i in 1:length(x))
+  {
+    for (j in 1:length(y)){
+      z[i,j] <- dmvnorm(c(x[i],y[j]), mean = mu , sigma = sigma)
+    }
+  }
+   return(z)
+}
+
+z <- calc.z ( x,y, mu, v)
+persp(x,y,z,theta=0)
+contour(x, y, z, nlevels= 20 )
+
+p1 <- ggplot(d1, aes(V1,V2))
+p1 + geom_point(alpha = 0.1) + geom_density_2d()+theme_bw()
+
+```
+
+### Linear function is Univariate Normal
+
+```{r}
+a <-  c(1,3)
+u <- t(t(a)%*%t(d1))
+
+ggplot(as.data.frame(u), aes(x=V1))+geom_histogram(bins=50)
+shapiro.test(u) # test for normality 
+
+```
+
+```{r}
+A <- matrix(c(1,3,4,-1),nrow = 2)
+v = as.data.frame(t((A)%*%t(d1)))
+
+p2 <- ggplot(v, aes(V1,V2))
+p2+geom_point(alpha=0.1)+geom_density_2d()+theme_bw()
+
+library(MVN)
+mvn(v)
+
+```
+
+
