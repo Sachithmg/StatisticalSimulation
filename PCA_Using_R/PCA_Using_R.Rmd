@@ -1,0 +1,233 @@
+---
+title: "PCA_Steps"
+author: "Sachith M Gunawardane"
+date: "2023-06-04"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(FactoMineR)
+library(factoextra)
+```
+```{r}
+#prcomp() # base R
+#princomp() #base R
+#?PCA #base FactoMineR / factoextra
+```
+
+```{r}
+#?decathlon
+data(decathlon)
+head(decathlon)
+```
+```{r}
+# Check for Event
+unique(decathlon$Competition)
+```
+```{r}
+dim(decathlon)
+```
+Rank and Points are response variables (prediction)
+
+```{r}
+#dropping last 3 variables which are predictions 
+decathlon1 <- decathlon[,1:10]
+#get correlation between first 10 variables 
+cor(decathlon1)
+```
+Most of the values are correlated 
+shot.put and discus is having  0.6157681 correlation ship. therefore it may be possible to represent this trend by 1 of it.
+And reduce the dimensionality of the data set
+
+```{r}
+cov(decathlon1)
+```
+
+```{r}
+round(diag(cov(decathlon1)),4) # Variances for each variable 
+```
+Variance of 1500m is 136.2647 which is high compared to others. Hence it is best to use correlation matrix to extract P.C. to avoid bias
+
+Total variance is 173.4599 (sum(round(diag(cov(decathlon1)),4))) and Javeline and 1500m dominate biggest percentage 
+
+# PCA using covariance Matrix
+```{r}
+
+pca.out <- PCA(decathlon1, scale.unit = F)
+
+```
+```{r}
+pca.out
+```
+
+
+```{r}
+pca.out$eig
+```
+1st Column - Eigen Values 
+2nd Column - Percentage of Variance explain by each component 
+3rd Column - cumulative percentage 
+
+First 3 component captures 98.97 of the variance 
+
+#Check whether all eigen values get accumulated to total of variance Tr(A)
+```{r}
+sum(pca.out$eig[,1])
+```
+Total variability tr(A) is 173.4599. Based on above we can see small percentage is missing from eigen values. This can be due to PCA function and number of components that it extract. 
+But as per theory max eigen values are 10 because max parameters are 10???????????
+
+```{r}
+# values for coefficients from eigen vector 
+pca.out$var
+```
+
+Dim.1 under the $coord is eigen vector for comp1 (Y1). As you can see it is dominated by 1500m with 11.522524623 and very significantly different from others. 
+
+This is an issue we have with the use of covariance matrix when we have different scales (Comp1/PC1 is dominated by 1500m variable due to its high variability). Therefore always recommended to use correlation matrix for PCA
+
+
+#PCA with corelation matrix 
+```{r}
+pca.out2 <- PCA(decathlon1, ncp = 10)
+```
+
+```{r}
+pca.out2$eig
+```
+In this case sum of eigen values should be equal to Tr(A); A is correlation matric. 
+In this case since we have 10 parameters it should be 10
+
+```{r}
+sum(pca.out2$eig[,1])
+```
+Perfect :)
+
+**Important**
+How many PCs should be retain? 
+This can be explain by eigen values or cumulative percentage of variance. 
+Rule of thumb... or generically 
+we prefer the comp with eigen value > 1 
+OR 
+cumulative percentage of variance at least > 70%
+
+Apart from above there is a another technique to decide number of PCs, which is scree plot
+
+#Scree plot to decide PCs 
+```{r}
+fviz_eig(pca.out2)
+```
+
+Along the X axis all the PCs and Y axis is percentage of explained variance. 
+These PCs are Orthogonal to each other 
+
+When you are deciding PCs based on scree plot what you have to look at it where the slope of percentage explained is negligible (Elbow Joint). 
+In this case it's from 1st to 5th PCs. 
+
+```{r}
+pca.out2$var
+```
+$coord - PC's coefficients 
+
+$cor - PC's correlation with variable 
+
+$cos2 - 
+
+$contrib - 
+
+Dim1 $coord, contributions are fairly distributed. 
+
+# Visualize PCA
+```{r}
+fviz_pca_var(pca.out2)
+```
+By default fviz_pca_var visualize PCA in 2 dimension environment. (Dim1 and Dim2)
+
+1. Whenever 2 arrows are together, they are positively correlated. 
+(e.g.: 100m and 110m hurdle = 0.579888931)
+
+2. When they are negatively correlated, they go opposite direction 
+(e.g.: 100m and Long jump = -0.59867767)
+
+3. when arrows re perpendicular, that means minimum corrlation 
+(e.g.: 400m to javeline = 0.004232096)
+
+4. distance from Origin to arrow head tells us how much it represented. 
+(Longer arrow well represented and shorter arrows are less)
+
+5. Direction of arrow respect to axis. We can say contributon is negative or positive 
+
+
+```{r}
+cor(decathlon1)
+```
+#plot of correlations 
+```{r}
+
+
+library(corrplot)
+corrplot(pca.out2$var$cor, is.corr = T)
+```
+1. Color indicate positive or negative correlation 
+2. size indicate contribution 
+
+#contribution 
+```{r}
+pca.out2$var$contrib
+```
+Comp1, Dim1 PC represent 32.7% variability of data and out of that 18.34% is represented by 100m 
+
+#ctribution plot 
+```{r}
+corrplot(pca.out2$var$contrib, is.corr = F)
+
+```
+Statistical significant of raw variables on PCs
+
+#Evaluating the significant of the associated raw variable on each dimention 
+```{r}
+#?dimdesc
+dimdesc.out <- dimdesc(pca.out2, proba = 0.05)
+dimdesc.out$Dim.1
+```
+```{r}
+dimdesc.out <- dimdesc(pca.out2, proba = 0.1)
+dimdesc.out$Dim.1
+```
+```{r}
+dimdesc.out$Dim.3
+```
+
+#Individual variables 
+```{r}
+fviz_pca_ind(pca.out2)
+```
+
+```{r}
+pca.out2$ind$coord
+#pca.out2$ind$coord[pca.out2$ind$coord[,0] == "NOOL" ,]
+```
+Karpov       4.619987275  0.03999523
+
+Karpov's performance more explain by Dim1 which means that variables contributed to Dim1 define his performance 
+
+#Biplot
+```{r}
+fviz_pca_biplot(pca.out2)
+
+
+```
+
+If athletic close to an arrow he is explain more using that specific arrow 
+
+#if you want to visualise other dimensions 
+```{r}
+fviz_pca_var(pca.out2, axes = c(2,3))
+```
+

@@ -1,0 +1,65 @@
+---
+title: "PCA"
+author: "Sachith M Gunawardane"
+date: "2023-05-28"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(MASS)
+```
+
+
+```{r}
+mu1 <- c(0,0)
+sigma1 <- matrix(c(9,0,0,16), ncol = 2)
+
+d1 <- mvrnorm(n=1000, mu=mu1, Sigma = sigma1)
+
+head(d1)
+plot(d1)
+```
+
+```{r}
+sigma2 <- matrix(c(9,11,11,16), ncol = 2)
+
+d2 <- mvrnorm(n=1000, mu=mu1, Sigma = sigma2)
+
+
+plot(d2)
+```
+
+```{r}
+sigma3 <- matrix(c(1,-2,0,-2,5,0,0,0,2), ncol = 3)
+sigma3
+```
+
+```{r}
+eigen(sigma3)
+```
+```{r}
+sigma4 <- diag(c(3,4,20,43,10))
+sigma4
+```
+```{r}
+eigen(sigma4)
+```
+```{r}
+sigma5 <- matrix(c(rep(0.8,16)), ncol = 4)
+sigma5
+```
+
+```{r}
+diag(sigma5) <- rep(1,4)
+sigma5
+```
+
+```{r}
+eigen(sigma5)
+```
+
