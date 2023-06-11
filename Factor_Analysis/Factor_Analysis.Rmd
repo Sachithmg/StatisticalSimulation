@@ -1,0 +1,90 @@
+---
+title: "Factor_Analysis"
+author: "Sachith M Gunawardane"
+date: "2023-06-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load data 
+#Data file is available under the same Git folder 
+```{r}
+data <- read.table("D:/PGIS_Data_Science_AI/DS5110_Statistical_simulation/projects/Factor_Analysis/track_rec.csv", header = T, sep =",")
+head(data)
+
+```
+
+```{r}
+dim(data)
+```
+```{r}
+dataset1 <- data[,-1]
+head(dataset1)
+```
+#Check for Correlation 
+```{r}
+cor(dataset1)
+```
+As you can see data is highly /significantly correlated
+
+#Bartlett.test 
+This is to verify is there any possibility to do factor analysis 
+```{r}
+bartlett.test(dataset1)
+```
+p-value is small ~ 0; which mean significant  
+hence factor analysis is possible 
+
+#Check all variables are good for factor analysis or not 
+```{r}
+library(psych)
+KMO(cor(dataset1))
+
+```
+1st - Overall MSA (Measure of Sampling Adequacy) =  0.89
+If MSA is < 0.5, it indicate that overall factor analysis is not possible 
+
+2nd - Individual MSA also above 0.5 hence all variables are good for Factor analysis
+
+#FACTOR analysis
+```{r}
+factor1.out <-  factanal(dataset1, factors = 1 )
+factor1.out
+```
+It is important to look at P-Value 
+H0: is One Factor is sufficient 
+P-Value < 0.001 hence we reject H0 and conclude that 1 factor is not sufficient for this data set 
+
+```{r}
+factor2.out <-  factanal(dataset1, factors = 2 )
+factor2.out
+```
+P-value > 0.001 therefore we fail to reject H0
+Hence 2 factor solution is sufficient for this 
+
+factor1 : X1500m & X5000m & X10000m and Marathon. Indicate all for long distance runs 
+factor2: 100m, 200m, 400m and 800m which are short distance 
+
+```{r}
+factor3.out <-  factanal(dataset1, factors = 2, rotation = "none" )
+factor3.out
+```
+when we set rotation to varimax it try to optimize/maximize the variance 
+this is useful when variables are hard/difficult to interpret 
+
+#How to identify # of factors required 
+```{r}
+eigen(cor(dataset1))
+```
+# of fators required should eigen values > 1
+
+```{r}
+library(factoextra)
+pca.out <-  PCA(dataset1, ncp = 8)
+fviz_eig(pca.out)
+```
+
+
