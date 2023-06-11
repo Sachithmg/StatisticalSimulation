@@ -56,17 +56,25 @@ factor1.out
 ```
 It is important to look at P-Value 
 H0: is One Factor is sufficient 
-P-Value < 0.001 hence we reject H0 and conclude that 1 factor is not sufficient for this data set 
+P-Value < 0.05 hence we reject H0 and conclude that 1 factor is not sufficient for this data set 
 
 ```{r}
 factor2.out <-  factanal(dataset1, factors = 2 )
 factor2.out
 ```
-P-value > 0.001 therefore we fail to reject H0
-Hence 2 factor solution is sufficient for this 
+P-value < 0.05 therefore we will reject H0
+Hence 2 factor solution is not sufficient for this 
 
-factor1 : X1500m & X5000m & X10000m and Marathon. Indicate all for long distance runs 
-factor2: 100m, 200m, 400m and 800m which are short distance 
+```{r}
+factor3.out <-  factanal(dataset1, factors = 3 )
+factor3.out
+```
+P-value > 0.05 therefore we are fail to reject H0
+Hence 3 factor solution is  sufficient for this 
+
+factor1 : X1500m & X5000m & X10000m and Marathon. Indicate all for longer distance runs 
+factor2: 100m, 200m, 400m  which are short distance events 
+factor3: 800m - mid distance 
 
 ```{r}
 factor3.out <-  factanal(dataset1, factors = 2, rotation = "none" )
@@ -82,9 +90,14 @@ eigen(cor(dataset1))
 # of fators required should eigen values > 1
 
 ```{r}
+library(FactoMineR)
 library(factoextra)
 pca.out <-  PCA(dataset1, ncp = 8)
 fviz_eig(pca.out)
+```
+#Another Function for Factor Analysis 
+```{r}
+fa(cor(dataset1), nfactors = 1, rotate = "none", fm = "ml")
 ```
 
 
