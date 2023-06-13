@@ -1,0 +1,246 @@
+---
+title: |
+  | DS5105 - Multivariate Methods I - PCA Worksheet
+  | MSc in DS&AI 
+author: |
+  | Sachith M Gunawardane
+  | DTS 2113
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Libraries
+
+```{r, message=FALSE, warning=FALSE, tidy=TRUE}
+library(FactoMineR)
+library(factoextra)
+```
+
+## 1. Load the data set into R.
+
+```{r, message=FALSE, warning=FALSE, tidy=TRUE}
+dataset <- read.table(paste0("D:/PGIS_Data_Science_AI/DS5110_Statistical_simulation",
+                             "/projects/PCA_Exercise/track_rec.csv"), header = T, sep =",")
+head(dataset)
+```
+
+## 2. Obtain the sample correlation matrix for the data.
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+dim(dataset)
+dataset1 <- dataset[,-1]
+cor(dataset1)
+```
+
+Correlation matrix shows that variables are highly correlated
+
+## 3. Determine the eigen values and eigen vectors
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+# Using PCA to calculate Eigen values 
+# for raw data we are using covariant matrix 
+pca.out.raw <- PCA(dataset1,ncp = 8, scale.unit = F, graph = FALSE)
+pca.out.raw$eig
+```
+
+Eigen values
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+round(pca.out.raw$eig[,1],4)
+
+```
+
+Eigen Vector
+
+```{r, message=FALSE, warning=FALSE, tidy=TRUE}
+pca.out.raw$var$coord
+```
+
+## 4. Obtain the scree plot for the principle components calculated on the raw data.
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+fviz_eig(pca.out.raw)
+```
+
+## 5. How many principle components would you like to retain based on the scree plot obtained.
+
+These dimensions (PCs) are orthogonal to each other. When we decide PCs based on scree plot what we are looking is where the slope of percentage explained is negligible. In other words elbow joint.
+
+In this case after principle component 2, slope is negligible. Therefore I would retain comp1 and comp2
+
+## 6. Determine the proportion of variance explained by the first principle component. 
+
+First principle component (comp 1) explains 98.28% of variance. 
+
+## 7. Now, redo the parts (2) through (6) for the standardized data. 
+
+### 7.2 Obtain the sample correlation matrix for the data.
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+cor(dataset1)
+```
+
+Correlation matrix shows that variables are highly correlated
+
+### 7.3 Determine the eigen values and eigen vectors
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+# Using PCA to calculate Eigen values 
+# for standardized data we are using correlation matrix 
+pca.out.sd <- PCA(dataset1,ncp = 8, graph = FALSE)
+pca.out.sd$eig
+```
+
+Eigen values
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+round(pca.out.sd$eig[,1],4)
+
+```
+
+Eigen Vector
+
+```{r, message=FALSE, warning=FALSE, tidy=TRUE}
+pca.out.sd$var$coord
+```
+
+### 7.4 Obtain the scree plot for the principle components calculated on the raw data.
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+fviz_eig(pca.out.sd,main = "Scree Plot - Standardized")
+```
+
+### 7.5 How many principle components would you like to retain based on the scree plot obtained.
+
+With standardized scree plot, since scale has improved we can observed that elbow joint include comp 3 as well. 
+
+After principle component 3, slope is negligible. Therefore I would retain comp 1, comp 2 and comp 3
+
+### 7.6 Determine the proportion of variance explained by the first principle component. 
+
+First principle component (comp 1) explains 83.79% of variance. 
+
+
+## 8. Do you see any difference between the answers you obtained for the raw data and standardized data? 
+
+Yes. there is major difference in both component when you consider variable contribution to components. 
+
+Raw Data Analysis
+Under raw data principle component 1 explains 98.28% of data variance and out of that 68.54% is dominated by Marathon and it's very significant different from others. 
+
+Standardized Data Analysis 
+Component 1 explains 83.79% of data variance and out of that 12.53% is contributed by Marathon giving fair/equal opportunity for other variables. 
+Event including Comp 2 and Comp 3 explain only 94.61% of variance. 
+
+Therefore, standardization of data provide better results by avoiding domination of few variables with large variances. 
+
+
+```{r}
+pca.out.raw$var$coord[,1][8]* 100/sum(pca.out.raw$var$coord[,1])
+
+pca.out.sd$var$coord[,1][8]* 100/sum(pca.out.sd$var$coord[,1])
+```
+
+## 9. Is it possible to interpret the first two principle components you obtained for the standardized data? If Yes, then give a brief interpretation. 
+YES
+
+Comp 1 represent 83.79% variability and comp 2 contribute to 7.98% variability. 
+
+All variables positively contribute to comp 1. 
+Only 100m, 200m and 400m contribute positively to comp 2 and others contribute negatively to it. 
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+fviz_pca_var(pca.out.sd)
+```
+
+
+There is no arrows driven opposite direction or perpendicular to each other. This means there is no negative correlations or independent respectively. 
+
+100m, 200m and 400m (short runs) clearly positively correlated. 
+
+1500m, 5000m, 10000m and Marathon (long distance events) are positively correlated. 
+
+800m contribute mainly to comp 1. 
+
+All variables positively contribute to comp 1. 
+Only 100m, 200m and 400m contribute positively to comp 2 and others contribute negatively to it. 
+
+Mostly all the arrows distances are similar hence, all variables are having fairly equal representation. 
+
+
+## 10. Rank the nations based on the scores on the first principle component. Based on the rankings, identify the top 5 and last 5 countries.
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+# Calculate the scores on the first principal component
+pc1_scores <- scale(dataset1) %*% pca.out.sd$var$coord[,1]
+
+# Create a data frame with country names and their scores on the first principal component
+df <- data.frame(Country = dataset$'C1.T', Rank = pc1_scores)
+head(df)
+```
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+# Sort the data frame
+sorted_df <- df[order(-df$Rank), ]
+
+# Get the top 5 countries
+top_5 <- head(sorted_df, 5)
+
+# Get the last 5 countries
+last_5 <- tail(sorted_df,5)
+
+
+```
+
+Top 5 countries are: `r top_5$Country`
+
+
+Last 5 Countries are: `r last_5$Country`
+
+
+## 11. Obtain the variable correlation plot using fviz pca var() function in R.
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+fviz_pca_var(pca.out.sd)
+```
+
+## 12. From the above plot, identify the positively correlated variable with the first principle component.
+
+Right side of the Dim 1 are all having positive correlation ship. 
+In this case all variables are with first principle component.
+
+
+100m, 200m and 400m (short runs) clearly positively closely correlated. 
+
+800m, 1500m, 5000m, 10000m and Marathon (long distance events) are positively closely correlated. 
+
+
+## 13. Obtain the graph of individuals using fviz pca ind() function in R.
+
+
+
+```{r,message=FALSE, warning=FALSE, tidy=TRUE}
+dataset2 <- dataset1
+rownames(dataset2) <- dataset$'C1.T'
+
+pca.out.sd2 <- PCA(dataset2,ncp = 8, graph = FALSE)
+
+fviz_pca_ind(pca.out.sd2)
+
+```
+
+
+## 14. Identify possible grouping among the countries.
+
+
+U.S.A. is outstanding from Europe countries 
+
+France, Germany, Russia and Portugal got close group 
+
+Indonesia, Malaysia having a group 
+
+Netherlands, New Zealand and Finland is closely associated 
